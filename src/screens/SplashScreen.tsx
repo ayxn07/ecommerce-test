@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 
 interface SplashScreenProps {
@@ -19,7 +19,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [onFinish, scale, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {

@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
+import { View, Text, FlatList } from 'react-native';
+import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { removeFromWishlist } from '../store/wishlistSlice';
 import { ProductTile, EmptyState } from '../components';
 
 interface WishlistScreenProps {
@@ -10,7 +9,6 @@ interface WishlistScreenProps {
 }
 
 export const WishlistScreen: React.FC<WishlistScreenProps> = ({ navigation }) => {
-  const dispatch = useDispatch();
   const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
 
   if (wishlistItems.length === 0) {
