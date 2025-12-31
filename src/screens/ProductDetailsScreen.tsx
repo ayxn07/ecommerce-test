@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
-  Text,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
@@ -48,11 +47,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
   const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
   const isInWishlist = product ? wishlistItems.some((item) => item.id === productId) : false;
 
-  useEffect(() => {
-    loadProduct();
-  }, [productId]);
-
-  const loadProduct = async () => {
+  const loadProduct = useCallback(async () => {
     try {
       setLoading(true);
       const data = await productService.getProductById(productId);
@@ -68,7 +63,11 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId]);
+
+  useEffect(() => {
+    loadProduct();
+  }, [loadProduct]);
 
   if (loading) {
     return <LoadingState message="Loading product..." />;

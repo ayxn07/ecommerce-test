@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, FlatList, TouchableOpacity, Text } from 'react-native';
 import { productService } from '../api';
 import { Product } from '../constants/mockData';
 import { ProductTileV2, LoadingState, EmptyState, FilterSortBar } from '../components';
@@ -21,15 +21,7 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
 
-  useEffect(() => {
-    // Set the header title
-    navigation.setOptions({
-      title: category,
-    });
-    loadProducts();
-  }, [category, navigation]);
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
       let data: Product[];
@@ -60,7 +52,15 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [category]);
+
+  useEffect(() => {
+    // Set the header title
+    navigation.setOptions({
+      title: category,
+    });
+    loadProducts();
+  }, [category, navigation, loadProducts]);
 
   if (loading) {
     return <LoadingState message="Loading products..." />;
