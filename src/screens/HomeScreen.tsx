@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, FlatList } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { mockProducts, mockCategories } from '../constants/mockData';
 import {
-  ProductTile,
   SectionHeader,
-  Card,
   LoadingState,
   ErrorState,
+  AppHeader,
+  SearchPill,
+  HeroCarousel,
+  CategoryChip,
+  ProductRail,
+  ProductGridPreview,
+  SkeletonBlock,
 } from '../components';
 
 interface HomeScreenProps {
@@ -16,6 +21,7 @@ interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   useEffect(() => {
     // Simulate loading
@@ -25,7 +31,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   }, []);
 
   if (loading) {
-    return <LoadingState message="Loading products..." />;
+    return (
+      <View className="flex-1 bg-white">
+        <AppHeader />
+        <ScrollView className="flex-1">
+          <View className="px-6 mt-4">
+            <SkeletonBlock height="h-40" className="mb-4" />
+            <SkeletonBlock height="h-10" width="w-full" className="mb-4" />
+            <View className="flex-row">
+              <SkeletonBlock height="h-8" width="w-20" className="mr-2" />
+              <SkeletonBlock height="h-8" width="w-24" className="mr-2" />
+              <SkeletonBlock height="h-8" width="w-20" />
+            </View>
+            <SkeletonBlock height="h-48" className="mt-4 mb-4" />
+            <SkeletonBlock height="h-48" className="mb-4" />
+          </View>
+        </ScrollView>
+      </View>
+    );
   }
 
   if (error) {
@@ -42,63 +65,98 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     );
   }
 
+  // Filter products based on selected category
+  const trendingProducts = mockProducts.slice(0, 6);
+  const newArrivals = mockProducts.slice(6, 10);
+  const bestDeals = mockProducts.filter(p => p.discount && p.discount > 25).slice(0, 6);
+
   return (
-    <ScrollView className="flex-1 bg-white">
-      {/* Hero Section */}
-      <View className="bg-primary-600 px-6 pt-16 pb-8 rounded-b-3xl">
-        <Text className="text-white text-3xl font-bold mb-2">
-          Discover Fashion
-        </Text>
-        <Text className="text-white/90 text-base">
-          Find your perfect style today
-        </Text>
-      </View>
+    <View className="flex-1 bg-white" testID="home-screen">
+      <AppHeader
+        onSearchPress={() => navigation.navigate('Search')}
+        onWishlistPress={() => navigation.navigate('Wishlist')}
+        onCartPress={() => navigation.navigate('Cart')}
+      />
+      
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        {/* Search Pill CTA */}
+        <SearchPill onPress={() => navigation.navigate('Search')} />
 
-      {/* Categories */}
-      <View className="px-6 mt-6">
-        <SectionHeader
-          title="Categories"
-          actionText="View All"
-          onActionPress={() => navigation.navigate('Categories')}
-        />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-2">
-          {mockCategories.map((category) => (
-            <Card key={category.id} className="mx-2 w-28">
-              <View className="items-center">
-                <View className="w-16 h-16 bg-primary-100 rounded-full items-center justify-center mb-2">
-                  <Text className="text-2xl">👔</Text>
-                </View>
-                <Text className="text-gray-900 font-semibold text-sm text-center">
-                  {category.name}
-                </Text>
-                <Text className="text-gray-500 text-xs">
-                  {category.productCount} items
-                </Text>
-              </View>
-            </Card>
-          ))}
-        </ScrollView>
-      </View>
+        {/* Hero Carousel */}
+        <HeroCarousel />
 
-      {/* Featured Products */}
-      <View className="px-6 mt-6 mb-6">
-        <SectionHeader
-          title="Featured"
-          actionText="See All"
-          onActionPress={() => navigation.navigate('ProductList', { category: 'All' })}
-        />
-        <FlatList
-          data={mockProducts.slice(0, 4)}
-          renderItem={({ item }) => (
-            <ProductTile
-              product={item}
-              onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
+        {/* Category Chips */}
+        <View className="mb-6">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="px-6"
+          >
+            <CategoryChip
+              category="All"
+              isActive={selectedCategory === 'All'}
+              onPress={() => setSelectedCategory('All')}
             />
-          )}
-          keyExtractor={(item) => item.id}
-          scrollEnabled={false}
-        />
-      </View>
-    </ScrollView>
+            {mockCategories.slice(0, 6).map((category) => (
+              <CategoryChip
+                key={category.id}
+                category={category.name}
+                isActive={selectedCategory === category.name}
+                onPress={() => setSelectedCategory(category.name)}
+              />
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Trending Now Section */}
+        <View className="mb-6">
+          <View className="px-6">
+            <SectionHeader
+              title="Trending Now"
+              actionText="See All"
+              onActionPress={() => navigation.navigate('ProductList', { category: 'All' })}
+            />
+          </View>
+          <ProductRail
+            products={trendingProducts}
+            onProductPress={(productId) =>
+              navigation.navigate('ProductDetails', { productId })
+            }
+          />
+        </View>
+
+        {/* New Arrivals Section */}
+        <View className="px-6 mb-6">
+          <SectionHeader
+            title="New Arrivals"
+            actionText="View All"
+            onActionPress={() => navigation.navigate('ProductList', { category: 'All' })}
+          />
+          <ProductGridPreview
+            products={newArrivals}
+            onProductPress={(productId) =>
+              navigation.navigate('ProductDetails', { productId })
+            }
+          />
+        </View>
+
+        {/* Best Deals Section */}
+        <View className="mb-6">
+          <View className="px-6">
+            <SectionHeader
+              title="Best Deals"
+              actionText="See All"
+              onActionPress={() => navigation.navigate('ProductList', { category: 'All' })}
+            />
+          </View>
+          <ProductRail
+            products={bestDeals}
+            onProductPress={(productId) =>
+              navigation.navigate('ProductDetails', { productId })
+            }
+          />
+        </View>
+      </ScrollView>
+    </View>
   );
 };
