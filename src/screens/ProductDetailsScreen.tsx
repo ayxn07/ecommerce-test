@@ -12,7 +12,7 @@ import { mockProducts } from '../constants/mockData';
 import { addToCart } from '../store/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/wishlistSlice';
 import { RootState } from '../store';
-import { PrimaryButton, LoadingState, Card } from '../components';
+import { PrimaryButton, LoadingState, Card, Toast, useToast } from '../components';
 
 interface ProductDetailsScreenProps {
   navigation: any;
@@ -32,6 +32,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
   const [loading, setLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
+  const { toast, showToast, hideToast } = useToast();
 
   const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
   const product = mockProducts.find((p) => p.id === productId);
@@ -73,7 +74,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
         selectedSize,
       })
     );
-    alert('Added to cart!');
+    showToast('Added to cart!', 'success');
   };
 
   const handleToggleWishlist = () => {
@@ -86,6 +87,12 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
 
   return (
     <View className="flex-1 bg-white">
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={hideToast}
+      />
       <ScrollView>
         {/* Product Image */}
         <Animated.View entering={FadeInDown.duration(500)}>

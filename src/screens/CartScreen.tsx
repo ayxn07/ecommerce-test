@@ -3,7 +3,7 @@ import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { removeFromCart, updateQuantity } from '../store/cartSlice';
-import { Card, EmptyState, PrimaryButton } from '../components';
+import { Card, EmptyState, PrimaryButton, Toast, useToast } from '../components';
 
 interface CartScreenProps {
   navigation: any;
@@ -12,6 +12,7 @@ interface CartScreenProps {
 export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const { items, total } = useSelector((state: RootState) => state.cart);
+  const { toast, showToast, hideToast } = useToast();
 
   if (items.length === 0) {
     return (
@@ -25,6 +26,12 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
 
   return (
     <View className="flex-1 bg-white">
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={hideToast}
+      />
       <View className="px-6 pt-16 pb-4">
         <Text className="text-3xl font-bold text-gray-900">Shopping Cart</Text>
         <Text className="text-gray-600 mt-2">
@@ -63,7 +70,6 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
                           updateQuantity({ id: item.id, quantity: item.quantity - 1 })
                         )
                       }
-                      disabled={item.quantity <= 1}
                       className="w-8 h-8 bg-gray-200 rounded items-center justify-center"
                     >
                       <Text className="text-gray-800 font-bold">-</Text>
@@ -106,8 +112,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
         <PrimaryButton
           title="Proceed to Checkout"
           onPress={() => {
-            // Navigate to checkout (not implemented yet)
-            alert('Checkout feature coming soon!');
+            showToast('Checkout feature coming soon!', 'info');
           }}
         />
       </View>
