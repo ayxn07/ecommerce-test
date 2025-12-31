@@ -7,7 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [
-    ['html', { outputFolder: 'artifacts/iteration-3/playwright-report', open: 'never' }],
+    ['html', { outputFolder: 'artifacts/iteration-7/playwright-report', open: 'never' }],
     ['list']
   ],
   use: {
@@ -26,5 +26,9 @@ export default defineConfig({
     url: 'http://localhost:19006',
     reuseExistingServer: false,
     timeout: 120000,
+    env: {
+      // Set fixture mode for E2E tests by default
+      EXPO_PUBLIC_E2E_API_MODE: process.env.EXPO_PUBLIC_E2E_API_MODE || 'fixture',
+    },
   },
 });

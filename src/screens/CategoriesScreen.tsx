@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { mockCategories } from '../constants/mockData';
-import { LoadingState, CategoryCard } from '../components';
+import { productService } from '../api';
+import { Category } from '../constants/mockData';
+import { LoadingState, ErrorState, CategoryCard } from '../components';
 
 interface CategoriesScreenProps {
   navigation: any;
@@ -9,13 +10,39 @@ interface CategoriesScreenProps {
 
 export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 800);
+    loadCategories();
   }, []);
+
+  const loadCategories = async () => {
+    try {
+      setLoading(true);
+      setError(false);
+      const data = await productService.getCategories();
+      setCategories(data);
+    } catch (err) {
+      console.error('Error loading categories:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return <LoadingState message="Loading categories..." />;
+  }
+
+  if (error) {
+    return (
+      <ErrorState
+        title="Failed to load categories"
+        message="Something went wrong while loading categories."
+        onRetry={loadCategories}
+      />
+    );
   }
 
   return (
@@ -26,7 +53,7 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({ navigation }
       </View>
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
         <View className="px-6 flex-row flex-wrap -mx-2" testID="categories-grid">
-          {mockCategories.map((category) => (
+          {categories.map((category) => (
             <View key={category.id} className="w-1/2 px-2">
               <CategoryCard
                 id={category.id}
