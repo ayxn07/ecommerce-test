@@ -16,7 +16,7 @@ test.describe('Iteration 3 - ProductList, Wishlist & E2E', () => {
     // Wait for home screen to load
     await page.waitForSelector('[data-testid="home-screen"]', { timeout: 15000 });
     
-    // Step 1: Navigate to Categories
+    // Step 1: Navigate to Categories to show ProductList
     const categoriesTab = page.getByText('Categories', { exact: false });
     await categoriesTab.click();
     
@@ -39,53 +39,99 @@ test.describe('Iteration 3 - ProductList, Wishlist & E2E', () => {
     // Step 3: Click wishlist heart on first product tile
     const firstProductHeart = page.locator('[data-testid^="wishlist-heart-"]').first();
     await expect(firstProductHeart).toBeVisible();
+    
+    // Get the product ID from the heart test ID
+    const productHeartTestId = await firstProductHeart.getAttribute('data-testid');
+    console.log('Adding product to wishlist:', productHeartTestId);
+    
     await firstProductHeart.click();
     
     // Wait a moment for state update
     await page.waitForTimeout(500);
     
-    // Step 4: Go to Wishlist tab
+    // Verify the heart changed (now filled)
+    const heartText = await firstProductHeart.textContent();
+    console.log('Heart icon after click:', heartText);
+    
+    // Step 4: Navigate to Wishlist by clicking the wishlist tab
+    // Go back twice to get to tabs
+    await page.goBack(); // Back to Categories
+    await page.waitForTimeout(300);
+    await page.goBack(); // Back to Home
+    await page.waitForTimeout(500);
+    
+    // Now we're on Home tab where all tabs are visible
+    // Click on Wishlist tab
     const wishlistTab = page.getByText('Wishlist', { exact: false });
+    await expect(wishlistTab).toBeVisible({ timeout: 5000 });
     await wishlistTab.click();
     
     // Wait for wishlist screen to load
     await page.waitForTimeout(1000);
     
     // Step 5: Assert at least one item visible (not empty state)
-    const wishlistGrid = page.getByTestId('wishlist-grid');
-    await expect(wishlistGrid).toBeVisible({ timeout: 5000 });
-    
-    // Verify at least one product tile is present
-    const productTile = page.locator('[data-testid^="product-tile-"]').first();
-    await expect(productTile).toBeVisible();
-    
-    // Step 6: Take screenshot of filled wishlist
-    await page.screenshot({ 
-      path: 'artifacts/iteration-3/02-wishlist-filled.png',
-      fullPage: true 
-    });
-    
-    // Step 7: Toggle heart to remove item
-    const wishlistHeart = page.locator('[data-testid^="wishlist-heart-"]').first();
-    await expect(wishlistHeart).toBeVisible();
-    await wishlistHeart.click();
-    
-    // Wait for state update
-    await page.waitForTimeout(500);
-    
-    // Step 8: Assert empty state is visible
+    const wishlistScreen = page.getByTestId('wishlist-screen');
     const emptyState = page.getByTestId('wishlist-empty-state');
-    await expect(emptyState).toBeVisible({ timeout: 5000 });
     
-    // Verify empty state message
-    await expect(page.getByText('Wishlist is empty')).toBeVisible();
-    await expect(page.getByText('Add products to your wishlist to see them here')).toBeVisible();
+    // Check which one is visible
+    const screenVisible = await wishlistScreen.isVisible().catch(() => false);
+    const emptyVisible = await emptyState.isVisible().catch(() => false);
     
-    // Step 9: Take screenshot of empty wishlist
-    await page.screenshot({ 
-      path: 'artifacts/iteration-3/03-wishlist-empty.png',
-      fullPage: true 
-    });
+    console.log('Wishlist screen visible:', screenVisible, 'Empty state visible:', emptyVisible);
+    
+    if (screenVisible) {
+      const wishlistGrid = page.getByTestId('wishlist-grid');
+      await expect(wishlistGrid).toBeVisible({ timeout: 5000 });
+      
+      // Verify at least one product tile is present
+      const productTile = page.locator('[data-testid^="product-tile-"]').first();
+      await expect(productTile).toBeVisible();
+      
+      // Step 6: Take screenshot of filled wishlist
+      await page.screenshot({ 
+        path: 'artifacts/iteration-3/02-wishlist-filled.png',
+        fullPage: true 
+      });
+      
+      // Step 7: Toggle heart to remove item
+      const wishlistHeart = page.locator('[data-testid^="wishlist-heart-"]').first();
+      await expect(wishlistHeart).toBeVisible();
+      await wishlistHeart.click();
+      
+      // Wait for state update
+      await page.waitForTimeout(500);
+      
+      // Step 8: Assert empty state is visible
+      const emptyStateAfter = page.getByTestId('wishlist-empty-state');
+      await expect(emptyStateAfter).toBeVisible({ timeout: 5000 });
+      
+      // Verify empty state message
+      await expect(page.getByText('Wishlist is empty')).toBeVisible();
+      await expect(page.getByText('Add products to your wishlist to see them here')).toBeVisible();
+      
+      // Step 9: Take screenshot of empty wishlist
+      await page.screenshot({ 
+        path: 'artifacts/iteration-3/03-wishlist-empty.png',
+        fullPage: true 
+      });
+    } else if (emptyVisible) {
+      // Wishlist is empty - state was lost
+      console.log('Warning: Wishlist is empty after navigation - Redux state may have been lost');
+      
+      // Take screenshot
+      await page.screenshot({ 
+        path: 'artifacts/iteration-3/02-wishlist-filled.png',
+        fullPage: true 
+      });
+      await page.screenshot({ 
+        path: 'artifacts/iteration-3/03-wishlist-empty.png',
+        fullPage: true 
+      });
+      
+      throw new Error('Wishlist state was lost during navigation - Redux state not persisted across SPA navigation');
+    } else {
+      throw new Error('Neither wishlist screen nor empty state is visible');
+    }
   });
 
   test('ProductList screen shows filter/sort bar and 2-column grid', async ({ page }) => {
