@@ -41,3 +41,10 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Playwright
+test-results/
+# Allow artifacts directory for iteration screenshots
+#playwright-report/
+playwright/.cache/
+
