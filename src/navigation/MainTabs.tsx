@@ -11,11 +11,11 @@ import {
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { View, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export type MainTabsParamList = {
   Home: undefined;
   Categories: undefined;
-  Search: undefined;
   Wishlist: undefined;
   Cart: undefined;
   Profile: undefined;
@@ -26,8 +26,8 @@ const Tab = createBottomTabNavigator<MainTabsParamList>();
 const Badge = ({ count }: { count: number }) => {
   if (count === 0) return null;
   return (
-    <View className="absolute -top-1 -right-1 bg-primary-600 rounded-full w-5 h-5 items-center justify-center">
-      <Text className="text-white text-xs font-bold">{count > 9 ? '9+' : count}</Text>
+    <View className="absolute -top-2 -right-3 bg-red-500 rounded-full min-w-[18px] h-[18px] items-center justify-center px-1">
+      <Text className="text-white text-[10px] font-bold">{count > 9 ? '9+' : count}</Text>
     </View>
   );
 };
@@ -41,17 +41,24 @@ export const MainTabs = () => {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#16a34a',
-        tabBarInactiveTintColor: '#6b7280',
+        tabBarInactiveTintColor: '#9ca3af',
         tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopColor: '#e5e7eb',
-          height: 60,
-          paddingBottom: 8,
+          backgroundColor: '#ffffff',
+          borderTopWidth: 1,
+          borderTopColor: '#f3f4f6',
+          height: 65,
+          paddingBottom: 10,
           paddingTop: 8,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '600',
+          marginTop: 4,
         },
       }}
     >
@@ -59,30 +66,39 @@ export const MainTabs = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🏠</Text>,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons 
+              name={focused ? 'home' : 'home-outline'} 
+              size={24} 
+              color={color} 
+            />
+          ),
         }}
       />
       <Tab.Screen
         name="Categories"
         component={CategoriesScreen}
         options={{
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>📂</Text>,
-        }}
-      />
-      <Tab.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🔍</Text>,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons 
+              name={focused ? 'grid' : 'grid-outline'} 
+              size={24} 
+              color={color} 
+            />
+          ),
         }}
       />
       <Tab.Screen
         name="Wishlist"
         component={WishlistScreen}
         options={{
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color, focused }) => (
             <View testID="wishlist-tab">
-              <Text style={{ fontSize: 24 }}>❤️</Text>
+              <Ionicons 
+                name={focused ? 'heart' : 'heart-outline'} 
+                size={24} 
+                color={color} 
+              />
               <Badge count={wishlistItems.length} />
             </View>
           ),
@@ -92,9 +108,13 @@ export const MainTabs = () => {
         name="Cart"
         component={CartScreen}
         options={{
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color, focused }) => (
             <View>
-              <Text style={{ fontSize: 24 }}>🛒</Text>
+              <Ionicons 
+                name={focused ? 'cart' : 'cart-outline'} 
+                size={24} 
+                color={color} 
+              />
               <Badge count={cartItems.length} />
             </View>
           ),
@@ -104,7 +124,13 @@ export const MainTabs = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>👤</Text>,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons 
+              name={focused ? 'person' : 'person-outline'} 
+              size={24} 
+              color={color} 
+            />
+          ),
         }}
       />
     </Tab.Navigator>
