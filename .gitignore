@@ -44,6 +44,7 @@ app-example
 
 # Playwright
 test-results/
-playwright-report/
+# Allow artifacts directory for iteration screenshots
+#playwright-report/
 playwright/.cache/
 
