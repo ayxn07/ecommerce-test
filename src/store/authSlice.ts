@@ -7,9 +7,20 @@ interface AuthState {
   loading: boolean;
 }
 
-// For E2E testing, check if we should bypass auth
-const shouldBypassAuth = typeof window !== 'undefined' && 
-  (window.location.search.includes('bypass-auth=true') || process.env.NODE_ENV === 'test');
+// For E2E testing and development, check if we should bypass auth
+// Check query params first (for web), then environment
+let shouldBypassAuth = false;
+
+if (typeof window !== 'undefined') {
+  // Check URL query parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  shouldBypassAuth = urlParams.get('bypass-auth') === 'true';
+}
+
+// For development/test, default to authenticated if not in production
+if (!shouldBypassAuth && typeof process !== 'undefined') {
+  shouldBypassAuth = process.env.NODE_ENV !== 'production';
+}
 
 const initialState: AuthState = {
   isAuthenticated: shouldBypassAuth,
