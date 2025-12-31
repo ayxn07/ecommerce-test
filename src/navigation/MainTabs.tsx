@@ -81,7 +81,7 @@ export const MainTabs = () => {
         component={WishlistScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <View>
+            <View testID="wishlist-tab">
               <Text style={{ fontSize: 24 }}>❤️</Text>
               <Badge count={wishlistItems.length} />
             </View>

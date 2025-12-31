@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { mockProducts } from '../constants/mockData';
-import { ProductTile, LoadingState, EmptyState } from '../components';
+import { ProductTileV2, LoadingState, EmptyState, FilterSortBar } from '../components';
 
 interface ProductListScreenProps {
   navigation: any;
@@ -20,8 +20,12 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Set the header title
+    navigation.setOptions({
+      title: category,
+    });
     setTimeout(() => setLoading(false), 800);
-  }, []);
+  }, [category, navigation]);
 
   const filteredProducts =
     category === 'All'
@@ -43,18 +47,20 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="px-6 pt-16 pb-4">
-        <Text className="text-3xl font-bold text-gray-900" testID="productlist-title">{category}</Text>
-        <Text className="text-gray-600 mt-2">
-          {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
-        </Text>
-      </View>
+    <View className="flex-1 bg-gray-50" testID="productlist-screen">
+      {/* Sticky Filter Sort Bar */}
+      <FilterSortBar
+        onFilterPress={() => console.log('Filter pressed')}
+        onSortPress={() => console.log('Sort pressed')}
+        onSizePress={() => console.log('Size pressed')}
+      />
+
+      {/* 2-Column Product Grid */}
       <FlatList
         data={filteredProducts}
         renderItem={({ item }) => (
-          <View className="px-6 mb-4">
-            <ProductTile
+          <View className="w-1/2 p-2">
+            <ProductTileV2
               product={item}
               onPress={() =>
                 navigation.navigate('ProductDetails', { productId: item.id })
@@ -63,8 +69,19 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
           </View>
         )}
         keyExtractor={(item) => item.id}
+        numColumns={2}
         contentContainerStyle={{ paddingBottom: 20 }}
         testID="productlist-grid"
+        ListFooterComponent={
+          <View className="py-6 items-center">
+            <TouchableOpacity 
+              className="bg-white px-6 py-3 rounded-full border border-gray-300"
+              testID="load-more-button"
+            >
+              <Text className="text-gray-700 font-semibold">Load More</Text>
+            </TouchableOpacity>
+          </View>
+        }
       />
     </View>
   );
