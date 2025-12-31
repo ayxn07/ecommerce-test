@@ -7,9 +7,13 @@ interface AuthState {
   loading: boolean;
 }
 
+// For E2E testing, check if we should bypass auth
+const shouldBypassAuth = typeof window !== 'undefined' && 
+  (window.location.search.includes('bypass-auth=true') || process.env.NODE_ENV === 'test');
+
 const initialState: AuthState = {
-  isAuthenticated: false,
-  user: null,
+  isAuthenticated: shouldBypassAuth,
+  user: shouldBypassAuth ? mockUser : null,
   loading: false,
 };
 

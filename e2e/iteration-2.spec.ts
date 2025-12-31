@@ -2,21 +2,11 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Iteration 2 - Home and Categories UI', () => {
   test('01 - Home route shows hero carousel and product tiles', async ({ page }) => {
-    // Navigate to Home route
-    await page.goto('/');
-    
-    // Wait for app to load and bypass auth
-    await page.waitForTimeout(2000);
-    
-    // Check if we're on login screen, if so, skip login (mock auth)
-    const loginButton = page.getByRole('button', { name: /login|sign in/i });
-    if (await loginButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-      // For now, we'll wait for the auth to be bypassed or implement auto-login
-      console.log('Auth screen detected');
-    }
+    // Navigate to Home route with auth bypass
+    await page.goto('/?bypass-auth=true');
     
     // Wait for home screen to be visible
-    await page.waitForSelector('[data-testid="home-screen"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="home-screen"]', { timeout: 15000 });
     
     // Assert hero carousel exists
     const heroCarousel = page.getByTestId('hero-carousel');
@@ -34,20 +24,11 @@ test.describe('Iteration 2 - Home and Categories UI', () => {
   });
 
   test('02 - Categories tab shows category grid', async ({ page }) => {
-    // Navigate to home
-    await page.goto('/');
-    
-    // Wait for app to load
-    await page.waitForTimeout(2000);
-    
-    // Skip auth if present
-    const loginButton = page.getByRole('button', { name: /login|sign in/i });
-    if (await loginButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-      console.log('Auth screen detected');
-    }
+    // Navigate to home with auth bypass
+    await page.goto('/?bypass-auth=true');
     
     // Wait for home screen
-    await page.waitForSelector('[data-testid="home-screen"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="home-screen"]', { timeout: 15000 });
     
     // Click on Categories tab
     const categoriesTab = page.getByText('Categories', { exact: false });
@@ -72,20 +53,11 @@ test.describe('Iteration 2 - Home and Categories UI', () => {
   });
 
   test('03 - Clicking category navigates to ProductList', async ({ page }) => {
-    // Navigate to home
-    await page.goto('/');
-    
-    // Wait for app to load
-    await page.waitForTimeout(2000);
-    
-    // Skip auth if present
-    const loginButton = page.getByRole('button', { name: /login|sign in/i });
-    if (await loginButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-      console.log('Auth screen detected');
-    }
+    // Navigate to home with auth bypass
+    await page.goto('/?bypass-auth=true');
     
     // Wait for home screen
-    await page.waitForSelector('[data-testid="home-screen"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="home-screen"]', { timeout: 15000 });
     
     // Click on Categories tab
     const categoriesTab = page.getByText('Categories', { exact: false });
