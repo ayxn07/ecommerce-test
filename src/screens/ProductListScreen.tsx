@@ -45,7 +45,7 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
   return (
     <View className="flex-1 bg-white">
       <View className="px-6 pt-16 pb-4">
-        <Text className="text-3xl font-bold text-gray-900">{category}</Text>
+        <Text className="text-3xl font-bold text-gray-900" testID="productlist-title">{category}</Text>
         <Text className="text-gray-600 mt-2">
           {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
         </Text>
@@ -64,6 +64,7 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
         )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 20 }}
+        testID="productlist-grid"
       />
     </View>
   );
