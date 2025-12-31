@@ -50,9 +50,15 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
     <View className="flex-1 bg-gray-50" testID="productlist-screen">
       {/* Sticky Filter Sort Bar */}
       <FilterSortBar
-        onFilterPress={() => console.log('Filter pressed')}
-        onSortPress={() => console.log('Sort pressed')}
-        onSizePress={() => console.log('Size pressed')}
+        onFilterPress={() => {
+          // TODO: Implement filter functionality in future iteration
+        }}
+        onSortPress={() => {
+          // TODO: Implement sort functionality in future iteration
+        }}
+        onSizePress={() => {
+          // TODO: Implement size filter functionality in future iteration
+        }}
       />
 
       {/* 2-Column Product Grid */}
@@ -77,6 +83,9 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
             <TouchableOpacity 
               className="bg-white px-6 py-3 rounded-full border border-gray-300"
               testID="load-more-button"
+              onPress={() => {
+                // TODO: Implement load more pagination in future iteration
+              }}
             >
               <Text className="text-gray-700 font-semibold">Load More</Text>
             </TouchableOpacity>

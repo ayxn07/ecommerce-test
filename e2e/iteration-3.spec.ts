@@ -130,7 +130,7 @@ test.describe('Iteration 3 - ProductList, Wishlist & E2E', () => {
       });
     } else if (emptyVisible) {
       // Wishlist is already empty (state not persisted across page reload)
-      // This is expected in a non-persisted Redux state
+      // This is expected in a non-persisted Redux state - Redux resets on page reload
       await page.screenshot({ 
         path: 'artifacts/iteration-3/02-wishlist-filled.png',
         fullPage: true 
@@ -139,8 +139,6 @@ test.describe('Iteration 3 - ProductList, Wishlist & E2E', () => {
         path: 'artifacts/iteration-3/03-wishlist-empty.png',
         fullPage: true 
       });
-      
-      console.log('Note: Redux state was reset on page reload - this is expected without persistence');
     }
   });
 

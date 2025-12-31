@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Pressable, GestureResponderEvent } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { Product } from '../constants/mockData';
 import { RootState } from '../store';
@@ -19,7 +19,7 @@ export const ProductTileV2: React.FC<ProductTileV2Props> = ({ product, onPress }
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  const handleWishlistToggle = (e: any) => {
+  const handleWishlistToggle = (e: GestureResponderEvent) => {
     e.stopPropagation();
     if (isInWishlist) {
       dispatch(removeFromWishlist(product.id));
@@ -59,6 +59,7 @@ export const ProductTileV2: React.FC<ProductTileV2Props> = ({ product, onPress }
               <Text className="text-white text-xs font-bold">-{discount}%</Text>
             </View>
           )}
+          {/* Show NEW badge for products with high discount (temporary logic until 'isNew' field is added) */}
           {product.discount && product.discount >= 30 && (
             <View className="bg-red-600 px-2 py-1 rounded">
               <Text className="text-white text-xs font-bold">NEW</Text>
