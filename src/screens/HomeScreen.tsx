@@ -21,7 +21,6 @@ interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All');
 
   useEffect(() => {
     // Simulate loading
@@ -65,7 +64,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     );
   }
 
-  // Filter products based on selected category
+  // Product sections for display
   const trendingProducts = mockProducts.slice(0, 6);
   const newArrivals = mockProducts.slice(6, 10);
   const bestDeals = mockProducts.filter(p => p.discount && p.discount > 25).slice(0, 6);
@@ -92,17 +91,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             showsHorizontalScrollIndicator={false}
             className="px-6"
           >
-            <CategoryChip
-              category="All"
-              isActive={selectedCategory === 'All'}
-              onPress={() => setSelectedCategory('All')}
-            />
-            {mockCategories.slice(0, 6).map((category) => (
+            {mockCategories.slice(0, 7).map((category) => (
               <CategoryChip
                 key={category.id}
                 category={category.name}
-                isActive={selectedCategory === category.name}
-                onPress={() => setSelectedCategory(category.name)}
+                isActive={false}
+                onPress={() => navigation.navigate('ProductList', { category: category.name })}
               />
             ))}
           </ScrollView>
