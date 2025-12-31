@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { mockProducts } from '../constants/mockData';
+import { productService } from '../api';
+import { Product } from '../constants/mockData';
 import { ProductTileV2, LoadingState, EmptyState, FilterSortBar } from '../components';
 
 interface ProductListScreenProps {
@@ -18,25 +19,54 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
 }) => {
   const { category } = route.params;
   const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     // Set the header title
     navigation.setOptions({
       title: category,
     });
-    setTimeout(() => setLoading(false), 800);
+    loadProducts();
   }, [category, navigation]);
 
-  const filteredProducts =
-    category === 'All'
-      ? mockProducts
-      : mockProducts.filter((p) => p.category === category);
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      let data: Product[];
+      
+      if (category === 'All') {
+        data = await productService.getProducts();
+      } else {
+        // FakeStoreAPI categories are lowercase with specific names
+        // Map our display names to API names
+        const categoryMap: Record<string, string> = {
+          'Electronics': 'electronics',
+          'Jewelery': 'jewelery',
+          'Jewelry': 'jewelery',
+          'Men\'s clothing': 'men\'s clothing',
+          'Men': 'men\'s clothing',
+          'Women\'s clothing': 'women\'s clothing',
+          'Women': 'women\'s clothing',
+        };
+        
+        const apiCategory = categoryMap[category] || category.toLowerCase();
+        data = await productService.getProductsByCategory(apiCategory);
+      }
+      
+      setProducts(data);
+    } catch (err) {
+      console.error('Error loading products:', err);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return <LoadingState message="Loading products..." />;
   }
 
-  if (filteredProducts.length === 0) {
+  if (products.length === 0) {
     return (
       <EmptyState
         icon="📦"
@@ -63,7 +93,7 @@ export const ProductListScreen: React.FC<ProductListScreenProps> = ({
 
       {/* 2-Column Product Grid */}
       <FlatList
-        data={filteredProducts}
+        data={products}
         renderItem={({ item }) => (
           <View className="w-1/2 p-2">
             <ProductTileV2

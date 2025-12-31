@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { mockProducts, mockCategories } from '../constants/mockData';
+import { productService } from '../api';
+import { Product } from '../constants/mockData';
 import {
   SectionHeader,
   LoadingState,
@@ -21,13 +22,33 @@ interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(false);
+
+      // Fetch products and categories from API
+      const [productsData, categoriesData] = await Promise.all([
+        productService.getProducts(),
+        productService.getCategories(),
+      ]);
+
+      setProducts(productsData);
+      setCategories(categoriesData);
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -55,19 +76,26 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <ErrorState
         title="Failed to load products"
         message="Something went wrong while loading the products."
-        onRetry={() => {
-          setError(false);
-          setLoading(true);
-          setTimeout(() => setLoading(false), 1000);
-        }}
+        onRetry={loadData}
       />
     );
   }
 
-  // Product sections for display
-  const trendingProducts = mockProducts.slice(0, 6);
-  const newArrivals = mockProducts.slice(6, 10);
-  const bestDeals = mockProducts.filter(p => p.discount && p.discount > 25).slice(0, 6);
+  // Derive product sections from API data:
+  // - Trending: products with high review count (>300)
+  // - New Arrivals: take products 6-10 (simulating newest items)
+  // - Best Deals: products with highest discount (calculated from rating count)
+  const trendingProducts = products
+    .filter(p => p.reviews > 300)
+    .sort((a, b) => b.reviews - a.reviews)
+    .slice(0, 6);
+  
+  const newArrivals = products.slice(6, 10);
+  
+  const bestDeals = products
+    .filter(p => p.discount && p.discount > 20)
+    .sort((a, b) => (b.discount || 0) - (a.discount || 0))
+    .slice(0, 6);
 
   return (
     <View className="flex-1 bg-white" testID="home-screen">
@@ -91,7 +119,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             showsHorizontalScrollIndicator={false}
             className="px-6"
           >
-            {mockCategories.slice(0, 7).map((category) => (
+            {categories.slice(0, 7).map((category) => (
               <CategoryChip
                 key={category.id}
                 category={category.name}
@@ -103,53 +131,59 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
 
         {/* Trending Now Section */}
-        <View className="mb-6">
-          <View className="px-6">
-            <SectionHeader
-              title="Trending Now"
-              actionText="See All"
-              onActionPress={() => navigation.navigate('ProductList', { category: 'All' })}
+        {trendingProducts.length > 0 && (
+          <View className="mb-6">
+            <View className="px-6">
+              <SectionHeader
+                title="Trending Now"
+                actionText="See All"
+                onActionPress={() => navigation.navigate('ProductList', { category: 'All' })}
+              />
+            </View>
+            <ProductRail
+              products={trendingProducts}
+              onProductPress={(productId) =>
+                navigation.navigate('ProductDetails', { productId })
+              }
             />
           </View>
-          <ProductRail
-            products={trendingProducts}
-            onProductPress={(productId) =>
-              navigation.navigate('ProductDetails', { productId })
-            }
-          />
-        </View>
+        )}
 
         {/* New Arrivals Section */}
-        <View className="px-6 mb-6">
-          <SectionHeader
-            title="New Arrivals"
-            actionText="View All"
-            onActionPress={() => navigation.navigate('ProductList', { category: 'All' })}
-          />
-          <ProductGridPreview
-            products={newArrivals}
-            onProductPress={(productId) =>
-              navigation.navigate('ProductDetails', { productId })
-            }
-          />
-        </View>
-
-        {/* Best Deals Section */}
-        <View className="mb-6">
-          <View className="px-6">
+        {newArrivals.length > 0 && (
+          <View className="px-6 mb-6">
             <SectionHeader
-              title="Best Deals"
-              actionText="See All"
+              title="New Arrivals"
+              actionText="View All"
               onActionPress={() => navigation.navigate('ProductList', { category: 'All' })}
             />
+            <ProductGridPreview
+              products={newArrivals}
+              onProductPress={(productId) =>
+                navigation.navigate('ProductDetails', { productId })
+              }
+            />
           </View>
-          <ProductRail
-            products={bestDeals}
-            onProductPress={(productId) =>
-              navigation.navigate('ProductDetails', { productId })
-            }
-          />
-        </View>
+        )}
+
+        {/* Best Deals Section */}
+        {bestDeals.length > 0 && (
+          <View className="mb-6">
+            <View className="px-6">
+              <SectionHeader
+                title="Best Deals"
+                actionText="See All"
+                onActionPress={() => navigation.navigate('ProductList', { category: 'All' })}
+              />
+            </View>
+            <ProductRail
+              products={bestDeals}
+              onProductPress={(productId) =>
+                navigation.navigate('ProductDetails', { productId })
+              }
+            />
+          </View>
+        )}
       </ScrollView>
     </View>
   );

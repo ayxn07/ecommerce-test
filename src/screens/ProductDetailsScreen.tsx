@@ -8,7 +8,8 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-import { mockProducts } from '../constants/mockData';
+import { productService } from '../api';
+import { Product } from '../constants/mockData';
 import { addToCart } from '../store/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/wishlistSlice';
 import { RootState } from '../store';
@@ -39,25 +40,35 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
   const dispatch = useDispatch();
   const { productId } = route.params;
   const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
   const [quantity, setQuantity] = useState(1);
   const { toast, showToast, hideToast } = useToast();
 
   const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
-  const product = mockProducts.find((p) => p.id === productId);
-  const isInWishlist = wishlistItems.some((item) => item.id === productId);
+  const isInWishlist = product ? wishlistItems.some((item) => item.id === productId) : false;
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 800);
-  }, []);
+    loadProduct();
+  }, [productId]);
 
-  useEffect(() => {
-    if (product) {
-      if (product.sizes && product.sizes.length > 0) {
-        setSelectedSize(product.sizes[0]);
+  const loadProduct = async () => {
+    try {
+      setLoading(true);
+      const data = await productService.getProductById(productId);
+      setProduct(data);
+      
+      // Set default size if available
+      if (data.sizes && data.sizes.length > 0) {
+        setSelectedSize(data.sizes[0]);
       }
+    } catch (err) {
+      console.error('Error loading product:', err);
+      setProduct(null);
+    } finally {
+      setLoading(false);
     }
-  }, [product]);
+  };
 
   if (loading) {
     return <LoadingState message="Loading product..." />;
