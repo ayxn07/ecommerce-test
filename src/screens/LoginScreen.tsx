@@ -7,29 +7,31 @@ import {
   Platform,
   TouchableOpacity,
 } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { login } from '../store/authSlice';
-import { mockUser } from '../constants/mockData';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginAsync } from '../store/authSlice';
 import { PrimaryButton, TextInputField } from '../components';
+import type { AppDispatch, RootState } from '../store';
 
 interface LoginScreenProps {
   navigation: any;
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
-  const dispatch = useDispatch();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({ email: '', password: '' });
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
+  
+  // Default to test user credentials for convenience
+  const [username, setUsername] = useState('johnd');
+  const [password, setPassword] = useState('m38rmF$');
+  const [errors, setErrors] = useState({ username: '', password: '', api: '' });
 
   const handleLogin = async () => {
     // Reset errors
-    setErrors({ email: '', password: '' });
+    setErrors({ username: '', password: '', api: '' });
 
     // Basic validation
-    if (!email) {
-      setErrors((prev) => ({ ...prev, email: 'Email is required' }));
+    if (!username) {
+      setErrors((prev) => ({ ...prev, username: 'Username is required' }));
       return;
     }
     if (!password) {
@@ -37,12 +39,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       return;
     }
 
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      dispatch(login(mockUser));
-      setLoading(false);
-    }, 1500);
+    try {
+      await dispatch(loginAsync({ username, password })).unwrap();
+      // Navigation handled by auth state change
+    } catch (err: any) {
+      setErrors((prev) => ({ ...prev, api: err || 'Login failed' }));
+    }
   };
 
   return (
@@ -65,16 +67,29 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             </Text>
           </View>
 
+          {/* API Error */}
+          {(errors.api || error) && (
+            <View className="mb-4 p-3 bg-red-50 rounded-lg">
+              <Text className="text-red-600 text-sm">{errors.api || error}</Text>
+            </View>
+          )}
+
+          {/* Test Credentials Info */}
+          <View className="mb-6 p-3 bg-blue-50 rounded-lg">
+            <Text className="text-blue-900 text-sm font-semibold mb-1">Test Credentials:</Text>
+            <Text className="text-blue-800 text-xs">Username: johnd</Text>
+            <Text className="text-blue-800 text-xs">Password: m38rmF$</Text>
+          </View>
+
           {/* Form */}
           <View className="mb-6">
             <TextInputField
-              label="Email"
-              placeholder="Enter your email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
+              label="Username"
+              placeholder="Enter your username"
+              value={username}
+              onChangeText={setUsername}
               autoCapitalize="none"
-              error={errors.email}
+              error={errors.username}
               containerClassName="mb-4"
             />
             <TextInputField

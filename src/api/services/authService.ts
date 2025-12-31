@@ -8,6 +8,7 @@ import { ENDPOINTS } from '../endpoints';
 import { LoginRequestDTO, AuthResponseDTO, UserDTO } from '../types';
 import { mapUserDTOToUser } from '../mappers';
 import { User } from '../../constants/mockData';
+import { isFixtureMode, loginFixture, getUsersFixture } from '../fixtureLoader';
 
 export class AuthService {
   /**
@@ -18,6 +19,23 @@ export class AuthService {
    * We need to fetch the user separately by matching the username.
    */
   async login(username: string, password: string): Promise<{ token: string; user: User }> {
+    if (isFixtureMode()) {
+      const authResponse = loginFixture(username, password);
+      const users = getUsersFixture();
+      const userDto = users.find(u => u.username === username);
+      
+      if (!userDto) {
+        throw new Error('User not found after authentication');
+      }
+      
+      const user = mapUserDTOToUser(userDto);
+      
+      return {
+        token: authResponse.token,
+        user,
+      };
+    }
+
     // Step 1: Get auth token
     const authResponse = await httpClient.post<AuthResponseDTO>(ENDPOINTS.LOGIN, {
       username,
