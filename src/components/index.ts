@@ -17,6 +17,3 @@ export { ProductGridPreview } from './ProductGridPreview';
 export { CategoryCard } from './CategoryCard';
 export { SkeletonBlock } from './SkeletonBlock';
 export { FilterSortBar } from './FilterSortBar';
-export { QuantityStepper } from './QuantityStepper';
-export { Accordion } from './Accordion';
-export { ImageCarousel } from './ImageCarousel';

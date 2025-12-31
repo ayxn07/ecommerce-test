@@ -7,7 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [
-    ['html', { outputFolder: 'artifacts/iteration-4/playwright-report', open: 'never' }],
+    ['html', { outputFolder: 'artifacts/iteration-3/playwright-report', open: 'never' }],
     ['list']
   ],
   use: {
