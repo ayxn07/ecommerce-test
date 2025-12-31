@@ -30,6 +30,7 @@ test.describe('Iteration 4 - Product Details Page & Cart E2E', () => {
     
     // Click on the first product to open ProductDetails
     const firstProductTile = page.locator('[data-testid^="product-tile-"]').first();
+    await firstProductTile.scrollIntoViewIfNeeded();
     await firstProductTile.click();
     
     // Wait for Product Details screen to load
@@ -129,6 +130,7 @@ test.describe('Iteration 4 - Product Details Page & Cart E2E', () => {
     await page.waitForTimeout(1000);
     
     const firstProductTile = page.locator('[data-testid^="product-tile-"]').first();
+    await firstProductTile.scrollIntoViewIfNeeded();
     await firstProductTile.click();
     await page.waitForTimeout(1000);
     
@@ -207,6 +209,7 @@ test.describe('Iteration 4 - Product Details Page & Cart E2E', () => {
     await page.waitForTimeout(1000);
     
     const firstProductTile = page.locator('[data-testid^="product-tile-"]').first();
+    await firstProductTile.scrollIntoViewIfNeeded();
     await firstProductTile.click();
     await page.waitForTimeout(1000);
     
@@ -254,6 +257,7 @@ test.describe('Iteration 4 - Product Details Page & Cart E2E', () => {
     await page.waitForTimeout(1000);
     
     const firstProductTile = page.locator('[data-testid^="product-tile-"]').first();
+    await firstProductTile.scrollIntoViewIfNeeded();
     await firstProductTile.click();
     await page.waitForTimeout(1000);
     
